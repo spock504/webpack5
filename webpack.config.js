@@ -27,7 +27,7 @@ const config = {
                     // 'style-loader',
                     MiniCssExtractPlugin.loader, // 添加 loader
                     'css-loader',
-                    'postcss-loader',
+                    'postcss-loader', 
                     'sass-loader'
                 ],    // use: 对应的 Loader 名称
                 //postcss-loader 添加浏览器前缀需要配合 postcss.config.js 及 .browserslistrc
@@ -43,7 +43,7 @@ const config = {
                     }
                 },
                 generator: {
-                    filename: 'static/[hash].[ext]', // 输出文件位置以及文件名
+                    filename: 'static/img/[hash].[ext]', // 输出文件位置以及文件名
                 }
             },
             // 【字体文件】
@@ -52,7 +52,7 @@ const config = {
                 type: 'asset',
                 generator: {
                     // 输出文件位置以及文件名
-                    filename: "font/[name][hash:8][ext]"
+                    filename: "font/font/[name][hash:8][ext]"
                 },
                 parser: {
                     dataUrlCondition: {

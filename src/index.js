@@ -1,5 +1,7 @@
 import './main.css'
 import './sass.scss' // 引入 Sass 文件
+import './font/iconfont.css' // 字体样式
+
 import test from '../public/test.png'
 
 const a = 'Hello ITEM'
