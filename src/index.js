@@ -28,6 +28,16 @@ class Author {
 const au = new Author()
 console.log('mapList', mapList, au);
 
+// 新增装饰器的使用
+@log('hi')
+class MyClass { }
+
+function log(text) {
+  return function(target) {
+    target.prototype.logger = () => `${text}，${target.name}`
+  }
+}
+
 
 const img = new Image()
 img.src = test

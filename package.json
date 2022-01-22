@@ -6,12 +6,17 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=dev webpack serve --mode development",
     "test": "cross-env NODE_ENV=test webpack --mode production",
-    "build": "cross-env NODE_ENV=prod webpack --mode development"
+    "build": "cross-env NODE_ENV=prod webpack --mode production"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.16.10",
+    "@babel/plugin-proposal-class-properties": "^7.16.7",
+    "@babel/plugin-proposal-decorators": "^7.16.7",
+    "@babel/preset-env": "^7.16.11",
+    "babel-loader": "^8.2.3",
     "clean-webpack-plugin": "^4.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^6.5.1",

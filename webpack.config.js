@@ -19,6 +19,7 @@ const config = {
         port: 8080, // 端口号
         open: true  // 是否自动打开浏览器
     },
+    // devtool: 'source-map',
     module: {
         rules: [ // 转换规则
             {
@@ -27,7 +28,7 @@ const config = {
                     // 'style-loader',
                     MiniCssExtractPlugin.loader, // 添加 loader
                     'css-loader',
-                    'postcss-loader', 
+                    'postcss-loader',
                     'sass-loader'
                 ],    // use: 对应的 Loader 名称
                 //postcss-loader 添加浏览器前缀需要配合 postcss.config.js 及 .browserslistrc
@@ -71,6 +72,19 @@ const config = {
             //         name: "[name].[hash:8].[ext]",
             //     }
             // },
+            {
+                test: /\.js$/i,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: [
+                                '@babel/preset-env'
+                            ],
+                        }
+                    }
+                ]
+            },
         ]
     },
     plugins: [ // 配置插件
