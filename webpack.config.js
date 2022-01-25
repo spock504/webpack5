@@ -1,8 +1,16 @@
 const path = require('path')
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin') // 分离样式文件,以link的方式引入
+// const SpeedMeasurePlugin = require("speed-measure-webpack-plugin"); // 构建费时分析
+// const smp = new SpeedMeasurePlugin();
 console.log('process.env.NODE_ENV=', process.env.NODE_ENV) // (cross-env 设置的环境变量)
+
+// 路径处理方法
+function resolve(dir) {
+    return path.join(__dirname, dir);
+}
 
 const config = {
     mode: 'development', // 模式
@@ -19,11 +27,32 @@ const config = {
         port: 8080, // 端口号
         open: true  // 是否自动打开浏览器
     },
+    resolve: {
+        // 配置别名
+        alias: {
+            '~': resolve('src'),
+            '@': resolve('src'),
+            'components': resolve('src/components'),
+        },
+        // 在import 文件时文件后缀名可以不写，尝试按顺序解析这些后缀名；'...'扩展运算符代表默认配置
+        extensions: ['.js', '.json', '...'],
+        //  解析模块时应该搜索的目录
+        modules: [resolve('src'), 'node_modules'],
+    },
+    // externals:从输出的 bundle 中排除依赖
+    externals: {
+        jquery: 'jQuery', // 排除jquery模块，jQuery 作为全局变量
+    },
     // devtool: 'source-map',
     module: {
-        rules: [ // 转换规则
+        // 不需要解析依赖的第三方大型类库，以提高构建速度
+        noParse: /jquery|lodash/,
+        // 转换规则
+        rules: [
             {
                 test: /\.(s[ac]|c)ss$/i, //匹配所有的 sass/scss/css  文件
+                include: resolve('src'), // 缩小范围
+                exclude: /node_modules/,
                 use: [
                     // 'style-loader',
                     MiniCssExtractPlugin.loader, // 添加 loader
@@ -38,6 +67,8 @@ const config = {
             {
                 test: /\.(jpe?g|png|gif)$/i, // 匹配图片文件
                 type: 'asset',
+                include: resolve('src'),
+                exclude: /node_modules/,
                 parser: {
                     dataUrlCondition: {
                         maxSize: 4 * 1024, //如果一个模块源码大小小于 maxSize，那么模块会被作为一个 Base64 编码的字符串注入到包中
@@ -51,6 +82,8 @@ const config = {
             {
                 test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/i,
                 type: 'asset',
+                include: resolve('src'),
+                exclude: /node_modules/,
                 generator: {
                     // 输出文件位置以及文件名
                     filename: "font/font/[name][hash:8][ext]"
@@ -74,6 +107,8 @@ const config = {
             // },
             {
                 test: /\.js$/i,
+                include: resolve('src'),
+                exclude: /node_modules/,
                 use: [
                     {
                         loader: 'babel-loader',
@@ -85,7 +120,7 @@ const config = {
                     }
                 ]
             },
-        ]
+        ],
     },
     plugins: [ // 配置插件
         new HtmlWebpackPlugin({
@@ -95,6 +130,12 @@ const config = {
         new MiniCssExtractPlugin({ // 添加插件
             filename: '[name].[hash:8].css'
         }),
+        // 忽略 Moment 语言环境
+        // https://webpack.docschina.org/plugins/ignore-plugin
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^\.\/locale$/,
+            contextRegExp: /moment$/,
+        })
     ]
 }
 

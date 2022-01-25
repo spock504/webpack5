@@ -2,6 +2,7 @@
 webpack5 常用配置
 
 构建 webpack5.x 知识体系
+参考链接：https://juejin.cn/post/7023242274876162084
 
 1. css兼容: 添加浏览器前缀
 ```bash
