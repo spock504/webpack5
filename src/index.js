@@ -1,11 +1,9 @@
 import './main.css'
 import '@/sass.scss' // 引入 Sass 文件
 import './font/iconfont.css' // 字体样式
-import file from './file'
 import $ from 'jquery'; // externals 抽离模块测试
 import moment from "moment"; // IgnorePlugin: 阻止生成模块import或调用：require
-
-
+import { cube } from './math.js';
 import test from './public/test.png'
 
 
@@ -18,7 +16,7 @@ console.log('moment()',moment().format('YYYY-MM-DD'));
 
 
 const a = 'Hello ITEM'
-console.log(a)
+// console.log(a)
 
 const list = [
   "a", "b", "c"
@@ -55,3 +53,19 @@ function log(text) {
 const img = new Image()
 img.src = test
 document.getElementById('imgBox').appendChild(img)
+
+
+// Tree Shaking 测试
+function component() {
+  const element = document.createElement('pre');
+
+  // Lodash, now imported by this script
+  element.innerHTML = [
+    'Hello webpack!',
+    '5 cubed is equal to ' + cube(5)
+  ].join('\n\n');
+
+   return element;
+ }
+
+ document.body.appendChild(component());

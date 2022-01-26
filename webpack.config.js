@@ -5,12 +5,22 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin') // 分离样式文件,以link的方式引入
 // const SpeedMeasurePlugin = require("speed-measure-webpack-plugin"); // 构建费时分析
 // const smp = new SpeedMeasurePlugin();
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin') // 压缩css
+const TerserPlugin = require('terser-webpack-plugin'); // 压缩js
+const PurgecssWebpackPlugin = require('purgecss-webpack-plugin') // 清理无效css
+const glob = require('glob'); // 文件匹配模式
+
 console.log('process.env.NODE_ENV=', process.env.NODE_ENV) // (cross-env 设置的环境变量)
 
 // 路径处理方法
 function resolve(dir) {
     return path.join(__dirname, dir);
 }
+
+const PATHS = {
+    src: resolve('src')
+  }
 
 const config = {
     mode: 'development', // 模式
@@ -20,11 +30,8 @@ const config = {
         path: path.join(__dirname, 'dist') // 输出文件目录
     },
     devServer: {
-        static: {
-            directory: path.resolve(__dirname, 'public')
-        }, // 静态文件目录
         compress: true, //是否启动压缩 gzip
-        port: 8080, // 端口号
+        port: 8085, // 端口号
         open: true  // 是否自动打开浏览器
     },
     resolve: {
@@ -56,6 +63,7 @@ const config = {
                 use: [
                     // 'style-loader',
                     MiniCssExtractPlugin.loader, // 添加 loader
+                    'cache-loader', // 获取前面 loader 转换的结果
                     'css-loader',
                     'postcss-loader',
                     'sass-loader'
@@ -110,9 +118,16 @@ const config = {
                 include: resolve('src'),
                 exclude: /node_modules/,
                 use: [
+                    // {
+                    //     loader: 'thread-loader', // 开启多进程打包
+                    //     options: {
+                    //         worker: 3,
+                    //     }
+                    // },
                     {
                         loader: 'babel-loader',
                         options: {
+                            cacheDirectory: true, // 启用缓存
                             presets: [
                                 '@babel/preset-env'
                             ],
@@ -130,13 +145,28 @@ const config = {
         new MiniCssExtractPlugin({ // 添加插件
             filename: '[name].[hash:8].css'
         }),
-        // 忽略 Moment 语言环境
+        // 忽略 Moment 语言环境，将插件中的非中文语音排除掉
         // https://webpack.docschina.org/plugins/ignore-plugin
         new webpack.IgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/,
-        })
-    ]
+        }),
+        // new BundleAnalyzerPlugin({
+        //     // analyzerMode: 'disabled',  // 不启动展示打包报告的http服务器
+        //     // generateStatsFile: true, // 是否生成stats.json文件
+        // })
+    ],
+    // 在生成环境下打包默认会开启 js 压缩，但是当我们手动配置 optimization 选项之后，就不再默认对 js 进行压缩，需要我们手动去配置。
+    optimization: {
+        minimize: true, // 开启最小化
+        minimizer: [
+            new OptimizeCssAssetsPlugin({}), // 添加 css 压缩配置
+            new TerserPlugin({}), // js压缩
+            new PurgecssWebpackPlugin({
+                paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true })
+            }), // 清理无效css
+        ]
+    },
 }
 
 module.exports = (env, argv) => {

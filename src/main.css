@@ -10,3 +10,14 @@ body {
     left: 50%;
     transform: translateX(-50%);
 }
+
+
+.used {
+    width: 200px;
+    height: 200px;
+    background: #ccc;
+}
+
+.unused {
+    background: chocolate;
+}
