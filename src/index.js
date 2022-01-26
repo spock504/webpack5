@@ -55,9 +55,26 @@ img.src = test
 document.getElementById('imgBox').appendChild(img)
 
 
+// 按需加载
+// img.addEventListener('click', () => {
+//   import('./desc').then(({ default: element }) => {
+//     console.log(element)
+//     document.body.appendChild(element)
+//   })
+// })
+
+// prefetch (预获取)
+img.addEventListener('click', () => {
+  import( /* webpackPrefetch: true */ './desc').then(({ default: element }) => {
+    console.log(element)
+    document.body.appendChild(element)
+  })
+})
+
+
 // Tree Shaking 测试
 function component() {
-  const element = document.createElement('pre');
+  const element = document.createElement('div');
 
   // Lodash, now imported by this script
   element.innerHTML = [

@@ -20,7 +20,7 @@ function resolve(dir) {
 
 const PATHS = {
     src: resolve('src')
-  }
+}
 
 const config = {
     mode: 'development', // 模式
@@ -165,8 +165,40 @@ const config = {
             new PurgecssWebpackPlugin({
                 paths: glob.sync(`${PATHS.src}/**/*`, { nodir: true })
             }), // 清理无效css
-        ]
-    },
+        ],
+        //  分包配置
+        // splitChunks: {
+        //     cacheGroups: { // 配置提取模块的方案
+        //         default: false,
+        //         styles: {
+        //             name: 'styles',
+        //             test: /\.(s?css|less|sass)$/,
+        //             chunks: 'all',
+        //             enforce: true,
+        //             priority: 10,
+        //         },
+        //         common: {
+        //             name: 'chunk-common',
+        //             chunks: 'all',
+        //             minChunks: 2,
+        //             maxInitialRequests: 5,
+        //             minSize: 0,
+        //             priority: 1,
+        //             enforce: true,
+        //             reuseExistingChunk: true,
+        //         },
+        //         vendors: {
+        //             name: 'chunk-vendors',
+        //             test: /[\\/]node_modules[\\/]/,
+        //             chunks: 'all',
+        //             priority: 2,
+        //             enforce: true,
+        //             reuseExistingChunk: true,
+        //         },
+        //         // ... 根据不同项目再细化拆分内容
+        //     },
+        // },
+    }
 }
 
 module.exports = (env, argv) => {

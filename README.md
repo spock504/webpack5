@@ -220,3 +220,51 @@ const config = {
 ```
 4.  Tree-shaking ：剔除没有使用的代码，以降低包的体积
   
+### 四、优化运行时体验
+核心就是提升首屏的加载速度
+1. splitChunks 分包配置
+
+> webpack 将根据以下条件自动拆分 chunks：
+> - 新的 chunk 可以被共享，或者模块来自于 node_modules 文件夹
+> - 新的 chunk 体积大于 20kb（在进行 min+gz 之前的体积）
+> - 当按需加载 chunks 时，并行请求的最大数量小于或等于 30
+> - 当加载初始化页面时，并发请求的最大数量小于或等于 30
+
+2. 代码懒加载
+
+- 实现路由的按需加载
+- 图片使用的按需加载
+
+ ```js
+  // 按需加载
+img.addEventListener('click', () => {
+  import('./desc').then(({ default: element }) => {
+    console.log(element)
+    document.body.appendChild(element)
+  })
+})
+ ```
+
+ 3. prefetch 与 preload
+
+- prefetch (预获取)：浏览器空闲的时候进行资源的拉取
+```js
+  // 按需加载
+img.addEventListener('click', () => {
+  import( /* webpackPrefetch: true */ './desc').then(({ default: element }) => {
+    console.log(element)
+    document.body.appendChild(element)
+  })
+})
+```
+
+- preload (预加载)：提前加载后面会用到的关键资源
+  - ⚠️ 因为会提前拉取资源，如果不是特殊需要，谨慎使用
+
+```js
+// 官网示例：
+import(/* webpackPreload: true */ 'ChartingLibrary');
+```
+
+
+
