@@ -5,7 +5,7 @@ webpack5 常用配置
 参考链接：https://juejin.cn/post/7023242274876162084
 ### 一、基础配置
 
-1. css兼容: 添加浏览器前缀
+1. **css兼容** :postcss-loader（ 添加浏览器前缀 ）
 ```bash
 npm install postcss postcss-loader postcss-preset-env -D
 ```
@@ -15,24 +15,47 @@ postcss-loader 添加浏览器前缀需要配合 postcss.config.js 及 .browsers
 ```bash
 npm install mini-css-extract-plugin -D
 ```
-3. 静态文件：图片、字体
- 配置：`type: 'asset',`
- webpack5内置了资源模块（assets），可以自己处理资源文件（图片、字体等） https://www.jianshu.com/p/558cd247822d
+3. **静态资源**：asset （图片、字体）
+ webpack5内置了资源模块（assets），可以自己处理资源文件（图片、字体等） https://www.jianshu.com/p/558cd247822d 
 
- 4. js兼容
+  ```js
+  rules:[
+      {
+          test: /\.(jpe?g|png|gif)$/i, // 匹配图片文件
+          type: 'asset', // 静态资源
+      }
+  ]
+  ```
+
+4. **js兼容**: babel
 ```bash
 npm install babel-loader @babel/core @babel/preset-env -D
 ```
 - `babel-loader` 使用 Babel 加载 ES2015+ 代码并将其转换为 ES5
 - `@babel/core` Babel 编译的核心包
 - `@babel/preset-env` Babel 编译的预设，可以理解为 Babel 插件的超集
+```js
+{
+    test: /\.js$/i,
+    use: [
+        {
+            loader: 'babel-loader',
+            options: {
+                cacheDirectory: true, // 启用缓存
+                presets: [
+                    '@babel/preset-env' // Babel 编译的预设，可以理解为 Babel 插件的超集
+                ],
+            }
+        }
+    ]
+},
+```
 根目录下新增 `.babelrc.js`，将 Babel 配置文件提取出来。 
 
-插件: 增加装饰器
+*插件: 增加装饰器*
 > 下载：`npm install @babel/plugin-proposal-decorators @babel/plugin-proposal-class-properties -D`
 > 配置：`.babelrc.js` 加上插件的配置
-
-5. sourceMap
+5. SourceMap 是一种映射关系
 - 本地开发：
 
 推荐：`eval-cheap-module-source-map`
@@ -65,8 +88,8 @@ hash、chunkhash、contenthash 的区别：
 
 
 ### 二、优化构建速度
+> 缩小loader范围，（thread-loader）多进程配置，利用缓存（babel-loader，cache-loader）
 1. modules ：告诉webpack 优先 src 目录下查找需要解析的文件，会大大节省查找时间
-
 ```js
 resolve: {
         // 配置别名
@@ -88,14 +111,41 @@ resolve: {
     jquery: 'jQuery',
   },
 ```
-3. noParse：使用 noParse 进行忽略的模块文件中不会解析 import、require 等语法
+3. 缩小loader范围
+```js
+ {
+    test: /\.js$/i,
+    include: resolve('src'),
+    exclude: /node_modules/,
+    use: [
+      'babel-loader',
+    ]
+  },
+```
+4. thread-loader 多进程打包
+  > happypack 同样为开启多进程打包的工具, 在webpack5中已弃用。
+```js
+  {
+    test: /\.js$/i,
+    use: [
+        {
+            loader: 'thread-loader', // 开启多进程打包
+            options: {
+                worker: 3,
+            }
+        },
+    ]
+  }
+```
+
+5. noParse：使用 noParse 进行忽略的模块文件中不会解析 import、require 等语法
 ```js
  module: { 
     noParse: /jquery|lodash/,
     rules:[...]
   }
 ```
-4. IgnorePlugin
+6. IgnorePlugin
 
 将插件中的非中文语音排除掉
 ```js
@@ -113,8 +163,8 @@ const config = {
   ]  
 };
 ```
-5. 使用缓存
-
+6. 使用缓存
+> 在 webpack5.x 中已经不建议使用dll这种方式进行模块缓存
  babel-loader 通过`cacheDirectory：true `开启
 
 ```js
@@ -149,6 +199,8 @@ const config = {
 ```
 
 > webpack5中不建议的方式
+> - **happypack**
+> webpack5 已弃用该多进程打包的工具
 > - **hard-source-webpack-plugin** 
 >   为模块提供了中间缓存，重复构建时间大约可以减少 80%，但是在 webpack5 中已经内置了模块缓存，不需要再使用此插件
 > - **dll**

@@ -42,11 +42,11 @@ const config = {
             'components': resolve('src/components'),
         },
         // 在import 文件时文件后缀名可以不写，尝试按顺序解析这些后缀名；'...'扩展运算符代表默认配置
-        extensions: ['.js', '.json', '...'],
+        // extensions: ['.js', '.json', '...'],
         //  解析模块时应该搜索的目录
         modules: [resolve('src'), 'node_modules'],
     },
-    // externals:从输出的 bundle 中排除依赖
+    // externals:从输出的 bundle 中排除依赖：（从cdn引入，打包的时候就可以排除这个依赖了）
     externals: {
         jquery: 'jQuery', // 排除jquery模块，jQuery 作为全局变量
     },
@@ -62,13 +62,12 @@ const config = {
                 exclude: /node_modules/,
                 use: [
                     // 'style-loader',
-                    MiniCssExtractPlugin.loader, // 添加 loader
+                    MiniCssExtractPlugin.loader, // 分离样式文件， 添加 loader
                     'cache-loader', // 获取前面 loader 转换的结果
                     'css-loader',
-                    'postcss-loader',
+                    'postcss-loader', //postcss-loader 添加浏览器前缀需要配合 postcss.config.js 及 .browserslistrc
                     'sass-loader'
                 ],    // use: 对应的 Loader 名称
-                //postcss-loader 添加浏览器前缀需要配合 postcss.config.js 及 .browserslistrc
             },
             // 【图片】
             // webpack5内置了资源模块（assets），可以自己处理资源文件（图片、字体等） https://www.jianshu.com/p/558cd247822d
@@ -124,12 +123,14 @@ const config = {
                     //         worker: 3,
                     //     }
                     // },
+                    // JS 兼容性处理 babel
+                    // .babelrc.js：将 Babel 配置文件提取出来
                     {
                         loader: 'babel-loader',
                         options: {
                             cacheDirectory: true, // 启用缓存
                             presets: [
-                                '@babel/preset-env'
+                                '@babel/preset-env' // Babel 编译的预设，可以理解为 Babel 插件的超集
                             ],
                         }
                     }
